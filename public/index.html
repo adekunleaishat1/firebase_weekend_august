@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>Welcome to Firebase🔥🔥🔥🔥🔥</h1>
+  <button id="signingoogle">Sign up with Google</button>
+   or
+   <input id="username" placeholder="Username" type="text"><br>
+   <input id="email" placeholder="Email" type="text"><br>
+   <input id="password" placeholder="Password" type="text"><br>
+   <button id="signupwithpassword">Sign up</button>
+</body>
+</html>
+<script type="module">
+  let username = document.getElementById("username")
+  let email = document.getElementById("email")
+  let password = document.getElementById("password")
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { GoogleAuthProvider,getAuth, signInWithPopup ,createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getDatabase, ref, set,  onValue } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-database.js";
+
+ 
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyD4fNZ9d9IH63I13BGKAKdkFx2VSycoXq4",
+    authDomain: "weekendaugust-520bb.firebaseapp.com",
+    databaseURL: "https://weekendaugust-520bb-default-rtdb.firebaseio.com",
+    projectId: "weekendaugust-520bb",
+    storageBucket: "weekendaugust-520bb.appspot.com",
+    messagingSenderId: "397034564831",
+    appId: "1:397034564831:web:8dae801c873cc3445d0d6a"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const provider = new GoogleAuthProvider();
+  const auth = getAuth();
+  const database = getDatabase();
+  let index = 0
+
+  document.getElementById("signingoogle").addEventListener("click",()=>{
+
+    signInWithPopup(auth, provider)
+  .then((result) => { 
+      console.log(result);
+    // const user = result.user;
+  }).catch((error) => {
+   
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorMessage);
+  });
+  })
+
+   let dbref = ref(database, "Alluser")
+   onValue(dbref, (snapshot) => {
+    const  data = snapshot.val();
+     console.log(data);
+     if (data) {
+      index = data.length
+     }else{
+      index = 0
+     }
+   });
+
+  document.getElementById("signupwithpassword").addEventListener("click",  ()=>{
+    console.log(email.value, username.value, password.value);
+ 
+ createUserWithEmailAndPassword(auth, email.value, password.value)
+  .then((userCredential) => {
+    const user = userCredential.user;
+    let dbref = ref(database,`Alluser/${index}`) 
+      set(dbref, {
+        id: user.uid,
+        username:username.value,
+        email:email.value,
+      })
+    console.log(user);
+    updateProfile(auth.currentUser,{displayName:username.value}).then(()=>{
+       console.log("profile updated");
+       window.location.href = "login.html "
+    })
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    console.log(errorMessage);
+    // ..
+  });
+  })
+</script>
