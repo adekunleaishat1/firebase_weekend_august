@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+     <input id="files" type="file">
+     <button id="sendFile">Send File</button>
+
+     <div id="displayaudio">
+
+     </div>
+     
+    
+</body>
+</html>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-app.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-storage.js";
+    import { getDatabase, ref as dataRef , set,  onValue } from "https://www.gstatic.com/firebasejs/10.13.1/firebase-database.js";
+
+    const firebaseConfig = {
+    apiKey: "AIzaSyD4fNZ9d9IH63I13BGKAKdkFx2VSycoXq4",
+    authDomain: "weekendaugust-520bb.firebaseapp.com",
+    databaseURL: "https://weekendaugust-520bb-default-rtdb.firebaseio.com",
+    projectId: "weekendaugust-520bb",
+    storageBucket: "weekendaugust-520bb.appspot.com",
+    messagingSenderId: "397034564831",
+    appId: "1:397034564831:web:8dae801c873cc3445d0d6a"
+  };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage();
+    const database = getDatabase()
+   
+    let file
+    let index = 0
+
+      let  audioref = dataRef(database, "audios") 
+      onValue(audioref,(snapshot)=>{
+        const data = snapshot.val();
+            console.log(data);
+         data.map((el)=>{
+             console.log(el.audioName)
+             getDownloadURL(ref(storage, `Audio/${el.audioName}`))
+             .then((url)=>{
+                console.log(url);
+                displayaudio.innerHTML += `
+                <p>${el.audioName}</p>
+                <audio src=${url} controls></audio>
+                `
+             })
+             
+         })
+
+
+              if (data) {
+                index =  data.length
+              }else{
+                index = 0
+              }  
+      })
+     
+
+    document.getElementById("files").addEventListener("change", (e)=>{
+         console.log(e.target.files[0]);
+          file = e.target.files[0] 
+    })
+
+    document.getElementById("sendFile").addEventListener("click",()=>{
+        console.log("sending");
+       
+        
+        if (file) {
+            let date = new Date()
+            let audio = {
+                audioName: file.name,
+                time:date.toLocaleTimeString(),
+                date:date.toLocaleDateString()
+            }
+            let audioref = dataRef(database, `audios/${index}`)
+            set(audioref, audio)
+
+            const storageRef = ref(storage, `Audio/${file.name}`);
+            uploadBytes(storageRef, file).then((snapshot) => {
+           console.log('Uploaded a blob or file!');
+           });
+        //    getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+        //      console.log('File available at', downloadURL);
+        //    });
+        }else{
+            alert("choose the file to upload")
+        }
+        
+    })
+
+  </script>

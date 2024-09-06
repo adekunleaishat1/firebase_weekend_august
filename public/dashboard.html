@@ -69,6 +69,7 @@
 
     <h1 id="display"> </h1>
     <button id="signout">Sign Out</button>
+    <button id="gotoupload">Upload</button>
     <div class="user-cont">
       <div id="displayuser"> </div>
       <div id="displaychat">
@@ -139,7 +140,10 @@ let dbref = ref(database, "Alluser")
      })
     
    });
-
+   
+   document.getElementById("gotoupload").addEventListener("click", ()=>{
+      window.location.href = 'upload.html'
+   })
    function getcuruser(user, id){
     receiver.innerHTML = user
     receiverid = id
